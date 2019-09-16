@@ -7,21 +7,35 @@ typedef struct {
 	int c;
 	int p;
 	int d;
+	int c_now;
+	int lack;
+	int priority;
 } Task;
-int is_iddle(int c_rest[],int n_tasks){
-	short iddle = 0,i;
-	for(i = 0; i < n_tasks; ++i){
-		if(c_rest[i] > 0)
-			iddle = 0;
-		else
-			iddle = 1;	
-	}
+
+int is_iddle(struct Task task[],int n_tasks){
+	int i, iddle = 0;
+	for(i =0; i< n_tasks;i++)
+		if(task[i].c_now == 0)
+			iddle++;
+	if(iddle == n_tasks)
+		iddle = 1;
+	else
+		iddle = 0;
 	return iddle;
 }
+
+int find_act_period(){
+
+}
+
+int find _act_deadline(){
+
+}
+
 int main(void){
-	int n_tasks = 0, time =0, i,n_preemp = 0, n_ctx_stc =0, c_rest[MAX_N], cur_d[MAX_N], a_slack, t_slack[MAX_N],t;
+	int n_tasks = 0, time =0, i,n_preemp = 0,n_ctx_stc = 0,t;
 	Task task[MAX_N];
-	char tsk_brd[MAX_T + 1],p_running;
+	char tsk_brd[MAX_T + 1];
 	printf("\n############################\n");
 	printf("# Welcome to LST Simulator #\n");
 	printf("############################\n");
@@ -35,51 +49,29 @@ int main(void){
 			task[i].id = 'A' + i;
 			printf("\nPlese insert the following parameters:\n\nComputing Time \nPeriod \nDeadline\n");
 			scanf("%d %d %d", &(task[i].c),&(task[i].p),&(task[i].d));
-			c_rest[i] = task[i].c;//initializes the first c_rest
+			task[i].c_now = task[i].c;//c_now changes throught time increment 
+			task[i].priority = i+1;// priority is set by process arrival
 		}
 		printf("\nTasks added: ");
 		for(i = 0; i < n_tasks; ++i){
 			printf("T(%c) = [(C:%d);(P:%d);(D:%d)] ",task[i].id,task[i].c,task[i].p,task[i].d);
-			if(i == 2)
-				printf("\n");
+			if((i % 2) != 0)
+				printf("\n              ");
 		}
 		printf("\n");		
 		//running
 		for(t = 0; t <= time;++t){
-			for(i = 0; i < n_tasks; ++i)
-				if((c_rest[i] == 0)&&((t % task[i].d) == 0))//check if a process crossed its P and C is ended
-					c_rest[i] = task[i].c;
-			if(is_iddle(c_rest,n_tasks) == 1)//check if processor is iddle
-					tsk_brd[t] = '.';			//if yes, then insert dots that process
+			if(is_iddle(task,n_tasks) == 1)
+				tsk_brd[t] = '.';
 			else{
-			short a_slack = 100;
-			for(i = 0; i < n_tasks; ++i){
-				//begin finding Di
-				if(t < task[i].d)
-					cur_d[i] = t;
-				else{
-					short s =0;
-					while(t > cur_d[i]){
-						if(t > (task[i].d + task[i].p*s))
-							s++;
-						else
-							cur_d[i] = task[i].d + task[i].p*s;
-					}
+				for(i = 0; i < n_tasks; ++i) {
+							
 				}
-					t_slack[i] = cur_d[i] - t - c_rest[i];
-					if(t_slack[i] < a_slack){
-						p_running = task[i].id;
-						a_slack = t_slack[i];
-					}
-			}
-			tsk_brd[t] = p_running;
-			for(i = 0; i < n_tasks; ++i)//task running get Ci decreased
-				if(p_running == task[i].id)
-					c_rest[i]--;	
 			}
 		}
-		//results
-		printf("\nTask-board: %s \nP:  %d TC: %d \n\n",tsk_brd,n_preemp,n_ctx_stc);
 	}
+	//results
+	printf("\nTask-board: %s \nP:  %d TC: %d \n\n",tsk_brd,n_preemp,n_ctx_stc);
+	
 	return 0;
 }
