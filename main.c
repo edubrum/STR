@@ -12,12 +12,17 @@ typedef struct {
 	int priority;
 } Task;
 
-struct Task scheduler;
-struct Task task[MAX_N];
+Task scheduler;
+Task task[MAX_N];
+
+void rest_c(Task *task, int i,int t){
+	if((task[i].c_now == 0)&&(t == find_act_deadline(task,i,t)))
+		task[i].c_now = task[i].c;
+}
 
 void lst_sched(Task *task, int i,int t){
 	int d = find_act_deadline(task,i,t);
-	task.[i].slack = d - task[i].c_now - t;
+	task[i].slack = d - task[i].c_now - t;
 	if((task[i].slack < scheduler.slack)||((task[i].slack == scheduler.slack)&&( task[i].priority < scheduler.priority))){
 		scheduler.slack = task[i].slack;
 		scheduler.id = task[i].id;
@@ -34,7 +39,7 @@ int find_act_deadline(Task *task,int i,int t){
 	return task[i].d + task[i].p*n;
 }
 
-int find _act_period(){
+int find_act_period(Task *task,int i, int t){
 	int n =0;
 	while((task[i].p*n)<= t){
 		n++;
@@ -74,7 +79,6 @@ int main(void){
 			task[i].c_now = task[i].c;//c_now changes throught time increment 
 			task[i].priority = i+1;// priority is set by process arrival
 		}
-		scheduler.
 		printf("\nTasks added: ");
 		for(i = 0; i < n_tasks; ++i){
 			printf("T(%c) = [(C:%d);(P:%d);(D:%d)] ",task[i].id,task[i].c,task[i].p,task[i].d);
@@ -84,6 +88,9 @@ int main(void){
 		printf("\n");		
 		//running
 		for(t = 0; t <= time;++t){
+			for(i = 0; i< n_tasks; i++){
+				rest_c(task,i,t);
+			}
 			if(is_iddle(task,n_tasks) == 1)
 				tsk_brd[t] = '.';
 			else{
@@ -91,6 +98,7 @@ int main(void){
 					lst_sched(task,i,t);
 				}
 			}
+			tsk_brd[t] = scheduler.id;
 		}
 	}
 	//results
