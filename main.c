@@ -15,6 +15,15 @@ typedef struct {
 Task scheduler;
 Task task[MAX_N];
 
+int find_act_deadline(Task *task,int i,int t){
+	int n =0;
+	while((task[i].d + task[i].p*n)<= t){
+		n++;
+	}
+	return task[i].d + task[i].p*n;
+}
+
+
 void rest_c(Task *task, int i,int t){
 	if((task[i].c_now == 0)&&(t == find_act_deadline(task,i,t)))
 		task[i].c_now = task[i].c;
@@ -31,14 +40,6 @@ void lst_sched(Task *task, int i,int t){
 	}
 }
 
-int find_act_deadline(Task *task,int i,int t){
-	int n =0;
-	while((task[i].d + task[i].p*n)<= t){
-		n++;
-	}
-	return task[i].d + task[i].p*n;
-}
-
 int find_act_period(Task *task,int i, int t){
 	int n =0;
 	while((task[i].p*n)<= t){
@@ -46,7 +47,6 @@ int find_act_period(Task *task,int i, int t){
 	}
 	return task[i].p*n;
 }
-
 
 int is_iddle( Task *task,int n_tasks){
 	int i, iddle = 0;
@@ -87,22 +87,24 @@ int main(void){
 		}
 		printf("\n");		
 		//running
-		for(t = 0; t <= time;++t){
+		for(t = 0; t <= time;t++){
 			for(i = 0; i< n_tasks; i++){
 				rest_c(task,i,t);
 			}
 			if(is_iddle(task,n_tasks) == 1)
 				tsk_brd[t] = '.';
 			else{
-				for(i = 0; i < n_tasks; ++i) {
+				for(i = 0; i < n_tasks; i++) {
 					lst_sched(task,i,t);
+					printf("c_now[%d]: %d slack[%d]: %d ",i,task[i].c_now,i,task[i].slack);
 				}
 			}
+			printf("T: %d  S: %s \n", t,scheduler.id);
 			tsk_brd[t] = scheduler.id;
 		}
-	}
 	//results
+	printf("Got here  \n");
 	printf("\nTask-board: %s \nP:  %d TC: %d \n\n",tsk_brd,n_preemp,n_ctx_stc);
-	
+	}
 	return 0;
 }
