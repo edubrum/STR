@@ -2,6 +2,7 @@
 #include<string.h>
 #define MAX_N 26
 #define MAX_T 2048
+
 typedef struct {
 	char id;
 	int c;
@@ -14,6 +15,7 @@ typedef struct {
 
 Task scheduler;
 Task task[MAX_N];
+int n_preemp = 0,n_ctx_switch = 0;
 
 int find_act_deadline(Task *task,int i,int t){
 	int n =0;
@@ -29,9 +31,11 @@ void rest_c(Task *task, int i,int t){
 		task[i].c_now = task[i].c;
 }
 
+
 void lst_sched(Task *task, int i,int t){
 	int d = find_act_deadline(task,i,t);
 	task[i].slack = d - task[i].c_now - t;
+	printf("slack: %d d: %d",task[i].slack,d);
 	if((task[i].slack < scheduler.slack)||((task[i].slack == scheduler.slack)&&( task[i].priority < scheduler.priority))){
 		scheduler.slack = task[i].slack;
 		scheduler.id = task[i].id;
@@ -60,8 +64,9 @@ int is_iddle( Task *task,int n_tasks){
 	return iddle;
 }
 
+
 int main(void){
-	int n_tasks = 0, time =0, i,n_preemp = 0,n_ctx_stc = 0,t;
+	int n_tasks = 0, time =0, i,t;
 	char tsk_brd[MAX_T + 1];
 	printf("\n############################\n");
 	printf("# Welcome to LST Simulator #\n");
@@ -78,6 +83,10 @@ int main(void){
 			scanf("%d %d %d", &(task[i].c),&(task[i].p),&(task[i].d));
 			task[i].c_now = task[i].c;//c_now changes throught time increment 
 			task[i].priority = i+1;// priority is set by process arrival
+			scheduler.slack = task[i].slack;
+			scheduler.id = task[i].id;
+			scheduler.priority = task[i].priority;
+			scheduler.c_now = task[i].c_now;
 		}
 		printf("\nTasks added: ");
 		for(i = 0; i < n_tasks; ++i){
@@ -94,17 +103,26 @@ int main(void){
 			if(is_iddle(task,n_tasks) == 1)
 				tsk_brd[t] = '.';
 			else{
+				char prev_process = scheduler.id;
+				int last_c_now = scheduler.c_now;
 				for(i = 0; i < n_tasks; i++) {
 					lst_sched(task,i,t);
 					printf("c_now[%d]: %d slack[%d]: %d ",i,task[i].c_now,i,task[i].slack);
 				}
+				if(prev_process != scheduler.id){
+					n_preemp++;
+					if(last_c_now != 0)
+						n_ctx_switch++;
+				}
 			}
-			printf("T: %d  S: %s \n", t,scheduler.id);
+			printf("T: %d  S: %c \n", t,scheduler.id);
 			tsk_brd[t] = scheduler.id;
 		}
 	//results
 	printf("Got here  \n");
-	printf("\nTask-board: %s \nP:  %d TC: %d \n\n",tsk_brd,n_preemp,n_ctx_stc);
+	printf("\nTask-board: %s \nP:  %d TC: %d \n\n",tsk_brd,n_preemp,n_ctx_switch);
 	}
 	return 0;
 }
+
+
