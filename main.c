@@ -95,7 +95,7 @@ int main(void){
 		}
 		printf("\n");		
 		//running
-		for(t = 0; t <= time;t++){
+		for(t = 0; t < time;t++){
 			scheduler.slack = time;
 			mem = scheduler;
 			for(i = 0; i< n_tasks; i++){
@@ -110,9 +110,11 @@ int main(void){
 			else{
 				for(i = 0; i < n_tasks; i++) 
 					lst_sched(task,i,t,n_tasks);
-				for(i = 0; i < n_tasks; i++) 
-					if(scheduler.id == task[i].id)
-						task[i].c_now--;			
+				if(scheduler.c_now != 0){
+					for(i = 0; i < n_tasks; i++) 
+						if(scheduler.id == task[i].id)
+							task[i].c_now--;	
+				}		
 			}
 			//printf("Mem: %c %d %d ", mem.id, mem.c_now,mem.d);
 			//printf("Scheduler: %c %d %d ##", scheduler.id, scheduler.c_now,scheduler.d);
